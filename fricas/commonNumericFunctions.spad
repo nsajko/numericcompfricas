@@ -1,0 +1,13 @@
+)abbrev package CNF CommonNumericFunctions
+
+CommonNumericFunctions() : Exports == Implementation where
+
+ Exports ==> with
+        cnf_cos : Float -> Float
+	cnf_1cs : Float -> Float
+        cnf_sin : Float -> Float
+
+ Implementation ==> add
+        cnf_cos(x : Float) : Float == cos(convert(x::DoubleFloat)@Float)
+        cnf_1cs(x : Float) : Float == 1.0 - cos(convert(x::DoubleFloat)@Float)
+        cnf_sin(x : Float) : Float == sin(convert(x::DoubleFloat)@Float)
