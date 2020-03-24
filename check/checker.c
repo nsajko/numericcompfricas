@@ -281,7 +281,7 @@ about(mfloat_t old, mfloat_t new, char *r) {
 	union {mfloat_t newF; uint64 newI;} u2;
 	u1.oldF = old;
 	u2.newF = new;
-	if (((u1.oldI ^ u2.newI) & 0xfff0000000000000)) {
+	if (((u1.oldI ^ u2.newI) & 0xfff0000000000000UL)) {
 		sprintf(r, "Exponents or signs differ !");
 		return;
 	}
@@ -399,15 +399,23 @@ updateMicroReport(microReport *r, int64 iS, mfloat_t fS) {
 
 int
 main(void) {
-	const mfloat_t fourPi = 12.5663706143591729539, step = 0.03125;
-	const int size = 2*(int)((fourPi + 0.5)/step + 0.5) + 1;
+#ifdef CHECK_WIDE
+	// Check for regressions.
+	const mfloat_t start = -12.5663706143591729539, step = 0.03125;
+	const int size = 2*(int)((-start + 0.5)/step + 0.5) + 1;
+#else
+	// Check improvements.
+	const mfloat_t start = 0, step = 1.52587890625e-05;
+	const int size = 500;
+#endif
+
 	dat data = {FricasFloatNew(), calloc(size, sizeof(Range)), 0};
 	if (data.fr.in == nil || data.fr.out == nil) {
 		fprintf(stderr, "sinCosOmcTester: failed to use fricas\n");
 		return 1;
 	}
 	for (; data.i < size; data.i++) {
-		testRange(&data, -fourPi + step*data.i);
+		testRange(&data, start + step*(mfloat_t)data.i);
 	}
 	if (FricasClose(data.fr)) {
 		fprintf(stderr, "sinCosOmcTester: failed to close fricas pipes\n");
